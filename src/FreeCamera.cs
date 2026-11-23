@@ -66,6 +66,9 @@ namespace Pathologic2WorldTuner
                 "While the free camera is on, load houses and districts around the camera instead of around the player. " +
                 "Flying fast loads and unloads many houses: hitches and more memory; leaving the camera loads the player's area again.");
             LoadAroundCamera.SettingChanged += (s, e) => UpdateLoadPatch();
+            FreezeWorld.SettingChanged += OnSwitchChanged;
+            HideUi.SettingChanged += OnSwitchChanged;
+            HidePlayer.SettingChanged += OnSwitchChanged;
             MoveSpeed = cfg.Bind("Photo", "MoveSpeed", 4f, new ConfigDescription("Free camera speed, m/s (Shift x4, Ctrl x0.25).",
                 new AcceptableValueRange<float>(0.1f, 100f)));
             Fov = cfg.Bind("Photo", "Fov", -1f, new ConfigDescription("Field of view of the free camera, degrees. -1 = the game's.",
@@ -147,9 +150,7 @@ namespace Pathologic2WorldTuner
 
             if (FreezeWorld.Value)
             {
-                speedBefore = TimeTweaks.Speed;
-                TimeTweaks.SetSpeed(0f);
-                frozeWorld = true;
+                SetWorldStopped(true);
             }
             if (HideUi.Value)
             {
@@ -187,14 +188,7 @@ namespace Pathologic2WorldTuner
             harmony?.UnpatchSelf();
             UpdateLoadPatch();
             RestoreFov();
-            if (frozeWorld)
-            {
-                frozeWorld = false;
-                if (TimeTweaks.Speed == 0f) // the user may have changed it meanwhile
-                {
-                    TimeTweaks.SetSpeed(speedBefore);
-                }
-            }
+            SetWorldStopped(false);
             SetUiHidden(false);
             SetPlayerHidden(false);
             ImageTweaks.Refresh();
@@ -324,6 +318,46 @@ namespace Pathologic2WorldTuner
             else if (kind == CameraKindEnum.FirstPerson_Controlling || kind == CameraKindEnum.FirstPerson_Controlling2)
             {
                 restorePending = false;
+            }
+        }
+
+        /// <summary>Stop the world for the free camera, or give back the speed it had before.</summary>
+        private static void SetWorldStopped(bool stop)
+        {
+            if (stop && !frozeWorld)
+            {
+                speedBefore = TimeTweaks.Speed;
+                TimeTweaks.SetSpeed(0f);
+                frozeWorld = true;
+            }
+            else if (!stop && frozeWorld)
+            {
+                frozeWorld = false;
+                if (TimeTweaks.Speed == 0f) // the user may have changed it meanwhile
+                {
+                    TimeTweaks.SetSpeed(speedBefore);
+                }
+            }
+        }
+
+        /// <summary>The window's switches take effect at once while the camera is on.</summary>
+        private static void OnSwitchChanged(object sender, EventArgs e)
+        {
+            if (!active)
+            {
+                return;
+            }
+            if (sender == FreezeWorld)
+            {
+                SetWorldStopped(FreezeWorld.Value);
+            }
+            else if (sender == HideUi)
+            {
+                SetUiHidden(HideUi.Value);
+            }
+            else if (sender == HidePlayer)
+            {
+                SetPlayerHidden(HidePlayer.Value);
             }
         }
 
