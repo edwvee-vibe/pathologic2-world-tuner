@@ -26,7 +26,7 @@ you play:
   run out), which jerks the view; the mod can slow down over a set time instead (off by default).
 - **Landing camera push**: the game kicks the field of view on every landing after a jump, which reads as a jerk of the
   view. The mod removes it by default; the slider brings it back in part or fully (the landing sound stays).
-- **Image**: TAA sharpness, exposure, contrast, saturation, white balance, strength of the player-state screen effects,
+- **Image**: exposure, contrast, saturation, white balance, strength of the player-state screen effects,
   bloom, vignette, chromatic aberration, film grain, auto exposure.
 - **Memory & loading**: frame-time and hitch monitor, memory numbers, the game's scheduled memory cleanup, garbage
   collector mode, background loading priority, GPU upload, texture streaming budget.
@@ -170,7 +170,8 @@ aperture, focal length, blur size.
 Applied after the game's own effects, every frame, to the game camera's post-processing (Post Processing Stack v1).
 **Screen effects** scales how much the player's state (tiredness, infection, pain) shifts colour and chromatic
 aberration: 0 keeps the picture neutral. Effects that are off in the game (for example grain) cannot be scaled. With
-every slider at Game the mod does not touch post-processing at all.
+every slider at Game the mod does not touch post-processing at all. Presets: *Clean* (no screen effects), *Vivid*,
+*Bleak*, *Plague*, *Old photo*, *Noir*, *Dream*. TAA sharpness is in the DLSS mod.
 
 ### Memory & loading
 

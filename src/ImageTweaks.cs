@@ -26,7 +26,7 @@ namespace Pathologic2WorldTuner
         // Neutral values of the effects mixer graph (sharedassets1.assets): what the colour grading is without any effect.
         internal const float NeutralSaturation = 1f, NeutralContrast = 0.9f, NeutralExposure = 1f, NeutralChromatic = 0.04f;
 
-        internal static ConfigEntry<float> TaaSharpness, Exposure, Contrast, Saturation, Temperature, Tint, EffectsStrength,
+        internal static ConfigEntry<float> Exposure, Contrast, Saturation, Temperature, Tint, EffectsStrength,
             Bloom, Vignette, Chromatic, Grain;
         internal static ConfigEntry<bool> NoAutoExposure;
         internal static ConfigEntry<DofMode> Dof;
@@ -37,7 +37,6 @@ namespace Pathologic2WorldTuner
         private static Harmony harmony;
         private static bool patched;
 
-        private static readonly AntialiasingModel aa = new AntialiasingModel();
         private static readonly ColorGradingModel cg = new ColorGradingModel();
         private static readonly BloomModel bloom = new BloomModel();
         private static readonly VignetteModel vignette = new VignetteModel();
@@ -55,8 +54,8 @@ namespace Pathologic2WorldTuner
         /// <summary>The game's values in the last frame (before the mod's changes), for the window.</summary>
         internal struct GameValues
         {
-            public bool Valid, Taa, ColorGrading, EffectsMixer, Bloom, Vignette, Chromatic, Grain, EyeAdaptation, Dof;
-            public float Sharpen, Saturation, Contrast, Exposure, Temperature, Tint, BloomIntensity, VignetteIntensity,
+            public bool Valid, ColorGrading, EffectsMixer, Bloom, Vignette, Chromatic, Grain, EyeAdaptation, Dof;
+            public float Saturation, Contrast, Exposure, Temperature, Tint, BloomIntensity, VignetteIntensity,
                 ChromaticIntensity, GrainIntensity;
         }
 
@@ -67,7 +66,6 @@ namespace Pathologic2WorldTuner
         internal static void BindConfig(ConfigFile cfg)
         {
             const string s = "Image";
-            TaaSharpness = Bind(cfg, s, "TaaSharpness", -1f, -1f, 3f, "Sharpening of the temporal anti-aliasing (TAA). -1 = the game's.");
             Exposure = Bind(cfg, s, "Exposure", 0f, -3f, 3f, "Added to the post exposure, EV. 0 = as in the game.");
             Contrast = Bind(cfg, s, "Contrast", 1f, 0.3f, 2f, "Contrast multiplier. 1 = as in the game.");
             Saturation = Bind(cfg, s, "Saturation", 1f, 0f, 2f, "Saturation multiplier. 1 = as in the game.");
@@ -87,7 +85,7 @@ namespace Pathologic2WorldTuner
             DofFocalLength = Bind(cfg, "Photo", "DofFocalLength", 50f, 10f, 300f, "Focal length (mm): higher = more blur.");
             DofKernel = cfg.Bind("Photo", "DofBlurSize", DepthOfFieldModel.KernelSize.Medium, "Size of the blur kernel (bokeh).");
 
-            foreach (ConfigEntryBase e in new ConfigEntryBase[] { TaaSharpness, Exposure, Contrast, Saturation, Temperature, Tint,
+            foreach (ConfigEntryBase e in new ConfigEntryBase[] { Exposure, Contrast, Saturation, Temperature, Tint,
                          EffectsStrength, Bloom, Vignette, Chromatic, Grain, NoAutoExposure, Dof })
             {
                 switch (e)
@@ -112,14 +110,14 @@ namespace Pathologic2WorldTuner
 
         internal static bool DofActive => Dof.Value == DofMode.Always || (Dof.Value == DofMode.FreeCameraOnly && FreeCamera.Active);
 
-        internal static bool AnyChanged => TaaSharpness.Value >= 0f || ColorChanged || Changed(Bloom, 1f) || Changed(Vignette, 1f) ||
+        internal static bool AnyChanged => ColorChanged || Changed(Bloom, 1f) || Changed(Vignette, 1f) ||
                                            Changed(Chromatic, 1f) || Changed(Grain, 1f) || NoAutoExposure.Value || DofActive ||
                                            TimeTweaks.Speed == 0f;
 
         /// <summary>Install or remove the postfix after a setting changed or the free camera was switched.</summary>
         internal static void Refresh()
         {
-            if (TaaSharpness == null || Dof == null)
+            if (Exposure == null || Dof == null)
             {
                 return; // still binding
             }
@@ -162,7 +160,6 @@ namespace Pathologic2WorldTuner
 
         internal static void ResetAll()
         {
-            TaaSharpness.Value = -1f;
             Exposure.Value = 0f;
             Contrast.Value = 1f;
             Saturation.Value = 1f;
@@ -212,8 +209,6 @@ namespace Pathologic2WorldTuner
         private static void Record(PostProcessingProfile p)
         {
             Game.Valid = true;
-            Game.Taa = p.antialiasing != null && p.antialiasing.enabled && p.antialiasing.settings.method == AntialiasingModel.Method.Taa;
-            Game.Sharpen = p.antialiasing != null ? p.antialiasing.settings.taaSettings.sharpen : 0f;
             Game.ColorGrading = p.colorGrading != null && p.colorGrading.enabled;
             if (p.colorGrading != null)
             {
@@ -247,15 +242,6 @@ namespace Pathologic2WorldTuner
             }
             lastFrame = Time.frameCount;
             Record(p);
-
-            if (TaaSharpness.Value >= 0f && Game.Taa)
-            {
-                AntialiasingModel.Settings s = p.antialiasing.settings;
-                s.taaSettings.sharpen = TaaSharpness.Value;
-                aa.enabled = true;
-                aa.settings = s;
-                p.antialiasing = aa;
-            }
 
             if (ColorChanged && Game.ColorGrading)
             {

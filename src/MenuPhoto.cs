@@ -134,14 +134,6 @@ namespace Pathologic2WorldTuner
                 return;
             }
 
-            GUI.enabled = g.Taa;
-            FloatRow("TAA sharpness", ImageTweaks.TaaSharpness, 0f, 3f, 0.05f, Mode.Absolute, g.Sharpen, v => $"{v:0.00}");
-            GUI.enabled = oldEnabled;
-            if (!g.Taa)
-            {
-                GUILayout.Label("      TAA is not in use now (another anti-aliasing is chosen in the game, or DLSS replaces it).", hintStyle);
-            }
-
             GUI.enabled = g.ColorGrading;
             FloatRow("Exposure", ImageTweaks.Exposure, -3f, 3f, 0.05f, Mode.Plain, 0f, v => $"{v:+0.00;-0.00;0} EV");
             FloatRow("Contrast", ImageTweaks.Contrast, 0.3f, 2f, 0.01f, Mode.Scale, 1f, v => $"x{v:0.00}");
