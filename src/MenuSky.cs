@@ -71,19 +71,6 @@ namespace Pathologic2WorldTuner
             // --- place and date
             GUILayout.Space(4);
             GUILayout.Label("Where and when the town is (sun, moon and stars)", headerStyle);
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Game")) SetPlace(SkyTweaks.GameSentinel, SkyTweaks.GameSentinel, 0f);
-            if (GUILayout.Button("Noon at 12:00"))
-            {
-                float lon = SkyTweaks.Longitude.Value > -900f ? SkyTweaks.Longitude.Value : SkyTweaks.GameLongitude;
-                SkyTweaks.Utc.Value = Mathf.Round(lon / 15f * 4f) / 4f;
-                Plugin.RequestSave();
-            }
-            if (GUILayout.Button("White nights")) SetPlace(64f, SkyTweaks.Longitude.Value, -55f);
-            if (GUILayout.Button("Polar day")) SetPlace(75f, SkyTweaks.Longitude.Value, -55f);
-            if (GUILayout.Button("Polar night")) SetPlace(75f, SkyTweaks.Longitude.Value, 128f);
-            if (GUILayout.Button("Equator")) SetPlace(0f, SkyTweaks.Longitude.Value, 0f);
-            GUILayout.EndHorizontal();
             PlaceRow("Latitude", SkyTweaks.Latitude, -89f, 89f, SkyTweaks.GameLatitude, v => v >= 0f ? $"{v:0.#} N" : $"{-v:0.#} S");
             PlaceRow("Longitude", SkyTweaks.Longitude, -180f, 180f, SkyTweaks.GameLongitude, v => v >= 0f ? $"{v:0.#} E" : $"{-v:0.#} W");
             PlaceRow("Clock time zone", SkyTweaks.Utc, -12f, 14f, SkyTweaks.GameUtc, v => $"UTC{v:+0.##;-0.##;+0}");
@@ -123,18 +110,6 @@ namespace Pathologic2WorldTuner
         {
             int m = ((Mathf.RoundToInt(hours * 60f) % 1440) + 1440) % 1440;
             return $"{m / 60}:{m % 60:00}";
-        }
-
-        private static void SetPlace(float lat, float lon, float shift)
-        {
-            SkyTweaks.Latitude.Value = lat;
-            SkyTweaks.Longitude.Value = lon;
-            if (lat <= -900f)
-            {
-                SkyTweaks.Utc.Value = SkyTweaks.GameSentinel;
-            }
-            SkyTweaks.DateShift.Value = shift;
-            Plugin.RequestSave();
         }
 
         private static void SkyGroup(string title, List<SkyParam> items, string hint)

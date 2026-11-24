@@ -83,9 +83,9 @@ glow around the sun); sun, moon and star size and brightness; warmth and saturat
 and clouds; rain strength and wind (cloud drift). Moonlight x6–x10 gives clearly lighter nights.
 
 **Where and when**: the game puts the town at 52° N, 85° E with clocks at UTC+8 and starts the sky on 15 August 1915.
-The tab changes the latitude, longitude, time zone and shifts the sky's date, and shows today's sunrise and sunset.
-Presets: *Noon at 12:00* (time zone = longitude / 15), *White nights*, *Polar day*, *Polar night*, *Equator*. Only the sky
-moves: street lamps, crowds and quests follow the clock, not the sun.
+The tab changes the latitude, longitude, time zone and shifts the sky's date, and shows today's dawn and dusk.
+The tab's presets include *Noon at 12:00* (time zone = longitude / 15), *White nights*, *Polar day*, *Polar night* and
+*Equator*. Only the sky moves: street lamps, crowds and quests follow the clock, not the sun.
 
 ### Life & lights
 

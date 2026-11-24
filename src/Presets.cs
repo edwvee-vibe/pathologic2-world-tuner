@@ -338,8 +338,11 @@ namespace Pathologic2WorldTuner
                 B("Clear sky", "Sky.Clouds.Coverage", "0.3", "Sky.Elements.Rain", "0"),
                 B("Overcast", "Sky.Clouds.Coverage", "3", "Sky.Day.LightIntensity", "0.7"),
                 B("Warm light", "Sky.Colors.LightWarmth", "0.4", "Sky.Colors.SkyWarmth", "0.2", "Sky.Colors.AmbientWarmth", "0.3"),
+                B("Noon at 12:00", "Sky.Place.UtcOffset", "5.75"),
                 B("White nights", "Sky.Place.Latitude", "64", "Sky.Place.DateShiftDays", "-55"),
-                B("Polar night", "Sky.Place.Latitude", "75", "Sky.Place.DateShiftDays", "128")
+                B("Polar day", "Sky.Place.Latitude", "75", "Sky.Place.DateShiftDays", "-55"),
+                B("Polar night", "Sky.Place.Latitude", "75", "Sky.Place.DateShiftDays", "128"),
+                B("Equator", "Sky.Place.Latitude", "0")
             });
 
         internal static readonly PresetStore Life = new PresetStore("life", "Life & Lights",
