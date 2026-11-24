@@ -27,9 +27,9 @@ namespace Pathologic2WorldTuner
 
         internal static void BindConfig(ConfigFile cfg)
         {
-            Scale = cfg.Bind("Player", "LandingCameraPush", 1f, new ConfigDescription(
+            Scale = cfg.Bind("Player", "LandingCameraPush", 0f, new ConfigDescription(
                 "Strength of the short field-of-view push the game plays on every landing after a jump (blueprint PlayerEndJump). " +
-                "1 = as in the game, 0 = none. The landing sound stays.", new AcceptableValueRange<float>(0f, 2f)));
+                "1 = as in the game, 0 = none (the default). The landing sound stays.", new AcceptableValueRange<float>(0f, 2f)));
             Scale.SettingChanged += (s, e) => Refresh();
         }
 

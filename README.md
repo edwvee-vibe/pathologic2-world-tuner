@@ -24,8 +24,8 @@ you play:
 - **Physics rate**: Unity's fixed timestep (30 Hz in the game), 5–1000 Hz.
 - **Smooth run stop**: the game drops from running to walking speed within one physics step (Shift released, stamina
   run out), which jerks the view; the mod can slow down over a set time instead (off by default).
-- **Landing camera push**: the game kicks the field of view on every landing after a jump; it can be weakened or removed
-  (the landing sound stays).
+- **Landing camera push**: the game kicks the field of view on every landing after a jump, which reads as a jerk of the
+  view. The mod removes it by default; the slider brings it back in part or fully (the landing sound stays).
 - **Image**: TAA sharpness, exposure, contrast, saturation, white balance, strength of the player-state screen effects,
   bloom, vignette, chromatic aberration, film grain, auto exposure.
 - **Memory & loading**: frame-time and hitch monitor, memory numbers, the game's scheduled memory cleanup, garbage
