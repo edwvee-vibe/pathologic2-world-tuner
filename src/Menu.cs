@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using BepInEx.Configuration;
 using Engine.Common.Weather;
 using Engine.Impl.Services;
@@ -95,6 +96,20 @@ namespace Pathologic2WorldTuner
             }
         }
 
+        private static PresetStore StoreOf(int t)
+        {
+            switch (t)
+            {
+                case FogTab: return Presets.Fog;
+                case DistanceTab: return Presets.Distance;
+                case SkyTab: return Presets.Sky;
+                case LifeTab: return Presets.Life;
+                case MemoryTab: return Presets.Memory;
+                case PhotoTab: return Presets.Image;
+                default: return null;
+            }
+        }
+
         private static void OnTabShown()
         {
             try
@@ -103,9 +118,10 @@ namespace Pathologic2WorldTuner
                 {
                     DistanceTweaks.ScanForWindow();
                 }
-                if (tab == FogTab)
+                PresetStore store = StoreOf(tab);
+                if (store != null)
                 {
-                    FogPresets.Reload(); // files may have been added or edited outside the game
+                    store.Reload(); // files may have been added or edited outside the game
                 }
                 if (tab == FogTab && fogWeather == null)
                 {
@@ -298,48 +314,25 @@ namespace Pathologic2WorldTuner
 
         // ------------------------------------------------------------ Fog
 
-        private static string presetName = "My fog";
-        private static string presetDeleteArmed;
-
-        private static string[] presetNames;
-        private static int presetNamesVersion = -1;
-        private static readonly Action<int> PickPreset = i =>
+        /// <summary>The preset row of a tab: an HTML-select-like drop-down, a name field, Save current / Overwrite, Delete.</summary>
+        private static void DrawPresets(PresetStore store)
         {
-            if (i >= FogPresets.All.Count)
-            {
-                return;
-            }
-            FogPresets.Preset p = FogPresets.All[i];
-            CommitPending();
-            FogPresets.Apply(p);
-            FogPresets.Matching(Time.unscaledTime, true);
-            if (!p.BuiltIn)
-            {
-                presetName = p.Name;
-            }
-            presetDeleteArmed = null;
-        };
-
-        private static void DrawFogPresets()
-        {
-            FogPresets.EnsureLoaded();
-            string current = FogPresets.Matching(Time.unscaledTime, false);
+            store.EnsureLoaded();
+            string current = store.Matching(Time.unscaledTime);
             GUILayout.BeginHorizontal();
             GUILayout.Label("Presets", headerStyle, GUILayout.ExpandWidth(false));
-            GUILayout.Label("  (BepInEx/config/pathologic2-world-tuner-fog-presets/)", footerStyle);
+            GUILayout.Label("  (BepInEx/config/" + Path.GetFileName(store.Folder) + "/)", footerStyle);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
-            // A drop-down like an HTML select: it shows the preset the settings equal now.
-            GUILayout.BeginHorizontal();
-            List<FogPresets.Preset> all = FogPresets.All;
-            if (presetNames == null || presetNamesVersion != FogPresets.Version)
+            List<PresetStore.Preset> all = store.All;
+            if (store.ShownNames == null || store.ShownNamesVersion != store.Version)
             {
-                presetNamesVersion = FogPresets.Version;
-                presetNames = new string[all.Count];
+                store.ShownNamesVersion = store.Version;
+                store.ShownNames = new string[all.Count];
                 for (int i = 0; i < all.Count; i++)
                 {
-                    presetNames[i] = all[i].BuiltIn ? all[i].Name : all[i].Name + "  (own)";
+                    store.ShownNames[i] = all[i].BuiltIn ? all[i].Name : all[i].Name + "  (own)";
                 }
             }
             int currentIndex = -1;
@@ -350,34 +343,51 @@ namespace Pathologic2WorldTuner
                     currentIndex = i;
                 }
             }
-            Select("fogpreset", current ?? "(own settings)", presetNames, currentIndex, PickPreset, 220);
+            if (store.PickAction == null)
+            {
+                store.PickAction = i =>
+                {
+                    if (i >= store.All.Count)
+                    {
+                        return;
+                    }
+                    PresetStore.Preset p = store.All[i];
+                    CommitPending();
+                    store.Apply(p);
+                    if (!p.BuiltIn)
+                    {
+                        store.NameField = p.Name;
+                    }
+                    store.DeleteArmed = null;
+                };
+            }
+
+            GUILayout.BeginHorizontal();
+            Select("presets-" + store.Id, current ?? "(own settings)", store.ShownNames, currentIndex, store.PickAction, 220);
             GUILayout.Space(12);
             GUILayout.Label("Name", GUILayout.Width(40));
-            presetName = GUILayout.TextField(presetName ?? "", 40, GUILayout.Width(220));
-            FogPresets.Preset existing = FogPresets.Find(presetName ?? "");
-            bool valid = FogPresets.IsValidName(presetName);
+            store.NameField = GUILayout.TextField(store.NameField ?? "", 40, GUILayout.Width(220));
+            PresetStore.Preset existing = store.Find(store.NameField ?? "");
             bool oldEnabled = GUI.enabled;
-            GUI.enabled = valid;
+            GUI.enabled = store.IsValidName(store.NameField);
             if (GUILayout.Button(existing != null && !existing.BuiltIn ? "Overwrite" : "Save current", GUILayout.Width(130)))
             {
                 CommitPending();
-                FogPresets.Save(presetName);
-                FogPresets.Matching(Time.unscaledTime, true);
-                presetDeleteArmed = null;
+                store.Save(store.NameField);
+                store.DeleteArmed = null;
             }
             GUI.enabled = existing != null && !existing.BuiltIn;
-            bool armed = existing != null && string.Equals(presetDeleteArmed, existing.Name, StringComparison.OrdinalIgnoreCase);
+            bool armed = existing != null && string.Equals(store.DeleteArmed, existing.Name, StringComparison.OrdinalIgnoreCase);
             if (GUILayout.Button(armed ? "Sure? Delete" : "Delete", armed ? selectedButton : GUI.skin.button, GUILayout.Width(110)))
             {
                 if (armed)
                 {
-                    FogPresets.Delete(existing);
-                    presetDeleteArmed = null;
-                    FogPresets.Matching(Time.unscaledTime, true);
+                    store.Delete(existing);
+                    store.DeleteArmed = null;
                 }
                 else
                 {
-                    presetDeleteArmed = existing.Name;
+                    store.DeleteArmed = existing.Name;
                 }
             }
             GUI.enabled = oldEnabled;
@@ -387,7 +397,7 @@ namespace Pathologic2WorldTuner
 
         private static void DrawFog()
         {
-            DrawFogPresets();
+            DrawPresets(Presets.Fog);
             GUILayout.Label("Fog mode", headerStyle);
             int mode = (int)FogTweaks.Mode.Value;
             int newMode = GUILayout.Toolbar(mode, FogModes);
@@ -495,7 +505,7 @@ namespace Pathologic2WorldTuner
             GUILayout.Label("Fog shader (camera, for every weather)", headerStyle);
             FloatRow("Distance fog multiplier", FogTweaks.DistanceDensity, 0f, 5f, 0.05f, Mode.Absolute, FogTweaks.GameDistanceDensity,
                 v => $"{v:0.00}", FogTweaks.ApplyCameraFogNow);
-            FloatRow("Height fog falloff", FogTweaks.HeightDensity, 0f, 10f, 0.05f, Mode.Absolute, FogTweaks.GameHeightDensity,
+            FloatRow("Height fog falloff", FogTweaks.HeightDensity, 0f, 1f, 0.01f, Mode.Absolute, FogTweaks.GameHeightDensity,
                 v => $"{v:0.00}", FogTweaks.ApplyCameraFogNow);
             GUILayout.BeginHorizontal();
             BoolToggle(FogTweaks.DisableDistanceFog, " No distance fog");
@@ -524,13 +534,7 @@ namespace Pathologic2WorldTuner
         private static void DrawDistance()
         {
             DistanceTweaks.CameraInfo(); // the game camera values for the "Game" labels (only while the window shows them)
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Presets", headerStyle, GUILayout.Width(70));
-            if (GUILayout.Button("Game")) { pending.Clear(); DistanceTweaks.ApplyPreset(0); Plugin.RequestSave(); }
-            if (GUILayout.Button("Far")) { pending.Clear(); DistanceTweaks.ApplyPreset(1); Plugin.RequestSave(); }
-            if (GUILayout.Button("Very far")) { pending.Clear(); DistanceTweaks.ApplyPreset(2); Plugin.RequestSave(); }
-            GUILayout.EndHorizontal();
-            GUILayout.Space(6);
+            DrawPresets(Presets.Distance);
 
             // --- rendering
             GUILayout.Label("Rendering: how far things are drawn", headerStyle);

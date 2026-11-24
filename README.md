@@ -17,9 +17,7 @@ you play:
 - **Life & lights**: where street crowds appear and disappear and how many, how far lamps cast shadows and keep their
   light, the player's lantern (range, brightness, colour, shadows), birds per flock, falling leaves.
 - **Fog**: density, start distance, height fog level and sky haze, either one setting for every weather or a separate
-  setting for each weather. Volumetric light (light shafts) can be kept as in the game. Presets in a drop-down: built-in
-  ones (Game, Lighter, Clear view, No fog, Thick) and your own, saved as shareable files in
-  `BepInEx\config\pathologic2-world-tuner-fog-presets\`.
+  setting for each weather. Volumetric light (light shafts) can be kept as in the game.
 - **Draw distance**: how far objects, trees and people are drawn, how far real houses and districts are loaded,
   LOD bias, shadow distance, grass, terrain detail.
 - **Time of day**: set the hour or stop the clock.
@@ -32,6 +30,10 @@ you play:
   bloom, vignette, chromatic aberration, film grain, auto exposure.
 - **Memory & loading**: frame-time and hitch monitor, memory numbers, the game's scheduled memory cleanup, garbage
   collector mode, background loading priority, GPU upload, texture streaming budget.
+
+**Presets** on the Fog, Distance, Sky, Life & Lights, Memory & Loading tabs and for the image (post-processing): a
+drop-down with built-in presets and your own, saved as shareable text files in
+`BepInEx\config\pathologic2-world-tuner-<tab>-presets\`.
 
 Everything is changed in memory at runtime. The mod does not modify game files, and saves stay clean.
 

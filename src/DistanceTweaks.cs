@@ -802,32 +802,6 @@ namespace Pathologic2WorldTuner
             }
             return stats[(int)kind];
         }
-
-        /// <summary>One-click presets for the window.</summary>
-        internal static void ApplyPreset(int level)
-        {
-            switch (level)
-            {
-                case 0:
-                    Objects.Value = -1f; DecalsSameAsObjects.Value = true; Interiors.Value = -1f; KeyBuildings.Value = -1f;
-                    TerrainLayer.Value = -1f; FarClip.Value = -1f;
-                    Houses.Value = 1f; Landmarks.Value = 1f; Districts.Value = 1f; IndoorLoad.Value = 1f;
-                    LodBias.Value = -1f; ShadowDistance.Value = -1f; GrassScale.Value = 1f; GroundTexture.Value = -1f;
-                    TerrainError.Value = -1f; ReflectionCulling.Value = -1f;
-                    break;
-                case 1:
-                    Objects.Value = 600f; DecalsSameAsObjects.Value = true;
-                    Houses.Value = 2.5f; Landmarks.Value = 2f; Districts.Value = 1.5f;
-                    LodBias.Value = 3f; ShadowDistance.Value = 120f; GrassScale.Value = 2f; GroundTexture.Value = 300f;
-                    break;
-                case 2:
-                    Objects.Value = 1500f; DecalsSameAsObjects.Value = true;
-                    Houses.Value = 4f; Landmarks.Value = 3f; Districts.Value = 2f;
-                    LodBias.Value = 5f; ShadowDistance.Value = 200f; GrassScale.Value = 3f; GroundTexture.Value = 1000f; TerrainError.Value = 8f;
-                    break;
-            }
-            dirty = true;
-        }
     }
 
     [HarmonyPatch]

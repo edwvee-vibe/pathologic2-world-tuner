@@ -56,6 +56,7 @@ namespace Pathologic2WorldTuner
 
         private static void DrawSky()
         {
+            DrawPresets(Presets.Sky);
             GUILayout.BeginHorizontal();
             GUILayout.Label("Changes apply on top of every weather (the game blends them as usual)", hintStyle);
             GUILayout.FlexibleSpace();
@@ -178,6 +179,7 @@ namespace Pathologic2WorldTuner
 
         private static void DrawLife()
         {
+            DrawPresets(Presets.Life);
             // --- crowds
             GUILayout.Label("Street crowds", headerStyle);
             if (!LifeTweaks.CrowdAvailable)

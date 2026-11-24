@@ -11,6 +11,7 @@ namespace Pathologic2WorldTuner
 
         private static void DrawMemory()
         {
+            DrawPresets(Presets.Memory);
             // --- frame times
             GUILayout.Label("Frame times and hitches", headerStyle);
             GUILayout.Label(HitchMonitor.HasData

@@ -114,6 +114,7 @@ namespace Pathologic2WorldTuner
 
             // --- post-processing
             GUILayout.Space(10);
+            DrawPresets(Presets.Image);
             GUILayout.BeginHorizontal();
             GUILayout.Label("Image (post-processing)", headerStyle);
             GUILayout.FlexibleSpace();
