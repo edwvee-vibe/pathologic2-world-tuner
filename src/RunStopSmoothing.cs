@@ -30,7 +30,7 @@ namespace Pathologic2WorldTuner
 
         internal static void BindConfig(ConfigFile cfg)
         {
-            Seconds = cfg.Bind("Player", "RunStopSmoothing", 0.25f, new ConfigDescription(
+            Seconds = cfg.Bind("Player", "RunStopSmoothing", 0f, new ConfigDescription(
                 "When running stops (Shift released or stamina run out) the game drops the speed from run to walk at once, which " +
                 "jerks the camera. Seconds over which the speed goes down instead (from run to walk). 0 = as in the game.",
                 new AcceptableValueRange<float>(0f, 1f)));
