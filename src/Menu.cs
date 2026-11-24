@@ -57,6 +57,7 @@ namespace Pathologic2WorldTuner
                 return;
             }
             IsOpen = open;
+            CloseSelect();
             Plugin.SetCursorPatch(open);
             lastChangeFrame = Time.frameCount;
             waitingFor = null;
@@ -161,10 +162,12 @@ namespace Pathologic2WorldTuner
 
         private static void DrawWindow(int id)
         {
+            SelectInput(); // an open drop-down list takes the clicks before the controls under it
             int newTab = GUILayout.SelectionGrid(tab, Tabs, 4, GUILayout.Height(52));
             if (newTab != tab)
             {
                 CommitPending();
+                CloseSelect();
                 tab = newTab;
                 scroll = Vector2.zero;
                 OnTabShown();
@@ -226,6 +229,7 @@ namespace Pathologic2WorldTuner
             }
             GUILayout.EndHorizontal();
 
+            SelectDraw();
             GUI.DragWindow(new Rect(0, 0, 10000, 30));
         }
 
@@ -291,7 +295,24 @@ namespace Pathologic2WorldTuner
         private static string presetName = "My fog";
         private static string presetDeleteArmed;
 
-        private static bool presetListOpen;
+        private static string[] presetNames;
+        private static int presetNamesVersion = -1;
+        private static readonly Action<int> PickPreset = i =>
+        {
+            if (i >= FogPresets.All.Count)
+            {
+                return;
+            }
+            FogPresets.Preset p = FogPresets.All[i];
+            CommitPending();
+            FogPresets.Apply(p);
+            FogPresets.Matching(Time.unscaledTime, true);
+            if (!p.BuiltIn)
+            {
+                presetName = p.Name;
+            }
+            presetDeleteArmed = null;
+        };
 
         private static void DrawFogPresets()
         {
@@ -299,14 +320,27 @@ namespace Pathologic2WorldTuner
             string current = FogPresets.Matching(Time.unscaledTime, false);
             GUILayout.Label("Presets", headerStyle);
 
-            // A drop-down: the button shows the preset the settings equal now; the list opens below it.
+            // A drop-down like an HTML select: it shows the preset the settings equal now.
             GUILayout.BeginHorizontal();
-            string shown = current != null ? current : "(own settings)";
-            if (GUILayout.Button((presetListOpen ? "▲  " : "▼  ") + shown, presetListOpen ? selectedButton : GUI.skin.button,
-                    GUILayout.Width(220)))
+            List<FogPresets.Preset> all = FogPresets.All;
+            if (presetNames == null || presetNamesVersion != FogPresets.Version)
             {
-                presetListOpen = !presetListOpen;
+                presetNamesVersion = FogPresets.Version;
+                presetNames = new string[all.Count];
+                for (int i = 0; i < all.Count; i++)
+                {
+                    presetNames[i] = all[i].BuiltIn ? all[i].Name : all[i].Name + "  (own)";
+                }
             }
+            int currentIndex = -1;
+            for (int i = 0; i < all.Count; i++)
+            {
+                if (string.Equals(all[i].Name, current, StringComparison.OrdinalIgnoreCase))
+                {
+                    currentIndex = i;
+                }
+            }
+            Select("fogpreset", current ?? "(own settings)", presetNames, currentIndex, PickPreset, 220);
             GUILayout.Space(12);
             GUILayout.Label("Name", GUILayout.Width(40));
             presetName = GUILayout.TextField(presetName ?? "", 40, GUILayout.Width(220));
@@ -338,28 +372,6 @@ namespace Pathologic2WorldTuner
             }
             GUI.enabled = oldEnabled;
             GUILayout.EndHorizontal();
-            if (presetListOpen)
-            {
-                foreach (FogPresets.Preset p in FogPresets.All)
-                {
-                    bool on = string.Equals(p.Name, current, StringComparison.OrdinalIgnoreCase);
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Space(16);
-                    if (GUILayout.Button(p.BuiltIn ? p.Name : p.Name + "  (own)", on ? selectedButton : GUI.skin.button, GUILayout.Width(204)))
-                    {
-                        CommitPending();
-                        FogPresets.Apply(p);
-                        FogPresets.Matching(Time.unscaledTime, true);
-                        if (!p.BuiltIn)
-                        {
-                            presetName = p.Name;
-                        }
-                        presetDeleteArmed = null;
-                        presetListOpen = false;
-                    }
-                    GUILayout.EndHorizontal();
-                }
-            }
             GUILayout.Label("A preset holds every fog setting on this tab (mode, global and per-weather values, volumetric light, " +
                             "fog shader). The drop-down shows the preset that equals the current settings. Built-in presets cannot be " +
                             "overwritten. Own presets are files in BepInEx/config/pathologic2-world-tuner-fog-presets/ and can be shared.",
@@ -903,6 +915,12 @@ namespace Pathologic2WorldTuner
             {
                 // While the window is open, Input.ResetInputAxes() may swallow GetKeyDown in Update, but not IMGUI events.
                 // Skip the frame in which Update has just opened/closed the window.
+                if (e.keyCode == KeyCode.Escape && (SelectOpen || selectClosedFrame == Time.frameCount))
+                {
+                    CloseSelect(); // Esc closes an open drop-down list first, not the window
+                    e.Use();
+                    return;
+                }
                 if (e.keyCode == KeyCode.Escape || (Plugin.Matches(Plugin.MenuKey.Value, e) && lastChangeFrame != Time.frameCount))
                 {
                     e.Use();

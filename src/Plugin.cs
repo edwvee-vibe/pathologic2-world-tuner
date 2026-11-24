@@ -123,7 +123,14 @@ namespace Pathologic2WorldTuner
             }
             else if (Menu.IsOpen && Input.GetKeyDown(KeyCode.Escape))
             {
-                Menu.SetOpen(false);
+                if (Menu.SelectOpen)
+                {
+                    Menu.CloseSelect(); // Esc closes an open drop-down list first
+                }
+                else
+                {
+                    Menu.SetOpen(false);
+                }
             }
             if (IsPressed(FreeCamera.Key.Value))
             {

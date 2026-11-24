@@ -26,6 +26,7 @@ namespace Pathologic2WorldTuner
 
         private static readonly string Folder = Path.Combine(Paths.ConfigPath, "pathologic2-world-tuner-fog-presets");
         internal static readonly List<Preset> All = new List<Preset>();
+        internal static int Version; // changes whenever the list is reloaded
         private static bool loaded;
 
         private static readonly Preset[] BuiltIns =
@@ -97,6 +98,7 @@ namespace Pathologic2WorldTuner
                 Plugin.LogOnce("fogpresets-read", "Fog presets: " + e.Message);
             }
             loaded = true;
+            Version++;
         }
 
         internal static void EnsureLoaded()
