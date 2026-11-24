@@ -351,7 +351,7 @@ namespace Pathologic2WorldTuner
             new[]
             {
                 B("Game"),
-                B("Crowds farther", "Life.CrowdSpawnMinDistance", "120", "Life.CrowdSpawnMaxDistance", "160", "Life.CrowdDestroyDistance", "220"),
+                B("Crowds farther", "Life.CrowdSpawnMinDistance", "95", "Life.CrowdSpawnMaxDistance", "140", "Life.CrowdDestroyDistance", "190"),
                 B("Lit streets", "Life.LampShadowDistance", "2", "Life.LampFadeDistance", "2"),
                 B("Brighter lantern", "Lantern.Range", "1.5", "Lantern.Brightness", "1.5"),
                 B("Lively", "Life.Birds", "2", "Sky.Elements.LeavesRate", "2")

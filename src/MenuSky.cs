@@ -163,17 +163,36 @@ namespace Pathologic2WorldTuner
             }
             else
             {
-                FloatRow("Appear from", LifeTweaks.CrowdSpawnMin, 5f, 1000f, 5f, Mode.AbsoluteLog, LifeTweaks.GameSpawnMin, Meters);
-                FloatRow("Appear up to", LifeTweaks.CrowdSpawnMax, 10f, 1000f, 5f, Mode.AbsoluteLog, LifeTweaks.GameSpawnMax, Meters);
-                FloatRow("Removed beyond", LifeTweaks.CrowdDestroy, 20f, 1200f, 5f, Mode.AbsoluteLog, LifeTweaks.GameDestroy, Meters);
+                float draw = DistanceTweaks.Objects.Value > 0f ? DistanceTweaks.Objects.Value : DistanceTweaks.GameDefaultCull;
+                FloatRow("Appear from", LifeTweaks.CrowdSpawnMin, 5f, 500f, 5f, Mode.AbsoluteLog, LifeTweaks.GameSpawnMin, Meters);
+                FloatRow("Appear up to", LifeTweaks.CrowdSpawnMax, 10f, 500f, 5f, Mode.AbsoluteLog, LifeTweaks.GameSpawnMax, Meters);
+                FloatRow("Removed beyond", LifeTweaks.CrowdDestroy, 20f, 600f, 5f, Mode.AbsoluteLog, LifeTweaks.GameDestroy, Meters);
                 FloatRow("Max passers-by", LifeTweaks.CrowdLimit, 0f, 3000f, 10f, Mode.Absolute, LifeTweaks.GameLimit, v => $"{v:0}");
                 LifeTweaks.EffectiveCrowd(out float min, out float max, out float destroy);
-                float draw = DistanceTweaks.Objects.Value > 0f ? DistanceTweaks.Objects.Value : DistanceTweaks.GameDefaultCull;
+                GUILayout.BeginHorizontal();
                 GUILayout.Label($"Passers-by appear {min:0}-{max:0} m away and are removed beyond {destroy:0} m; people are drawn up to {draw:0} m.",
                     valueStyle);
-                GUILayout.Label("Each crowd point gets a person when the player is inside the ring, so a farther ring makes people appear out " +
-                                "of sight, but points closer than \"Appear from\" stay empty until you walk away and back. A wider ring and a " +
-                                "farther removal mean more NPCs at once: more CPU.", max > 200f ? warnStyle : hintStyle);
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Fit to draw distance", GUILayout.Width(170)))
+                {
+                    pending.Clear();
+                    LifeTweaks.CrowdSpawnMin.Value = Mathf.Round(draw * 0.65f / 5f) * 5f;
+                    LifeTweaks.CrowdSpawnMax.Value = Mathf.Round(draw * 0.95f / 5f) * 5f;
+                    LifeTweaks.CrowdDestroy.Value = Mathf.Round((draw + 40f) / 5f) * 5f;
+                    Plugin.RequestSave();
+                }
+                GUILayout.EndHorizontal();
+                if (min >= draw)
+                {
+                    GUILayout.Label($"Nobody will be seen: people appear farther than they are drawn ({draw:0} m), and crowd points closer " +
+                                    $"than {min:0} m stay empty. Keep \"Appear up to\" near the draw distance and \"Appear from\" well below it.",
+                        warnStyle);
+                }
+                GUILayout.Label("A crowd point gets a person only while the player is between \"Appear from\" and \"Appear up to\" from it, " +
+                                "and it is emptied beyond \"Removed beyond\". A ring close to the draw distance hides people popping up; " +
+                                "points closer than \"Appear from\" stay empty until you walk away and back (for example after loading). " +
+                                "More distance means more NPCs at once: more CPU. \"Fit to draw distance\" sets 65-95% of the draw distance.",
+                    max > 200f ? warnStyle : hintStyle);
             }
 
             // --- lamps
