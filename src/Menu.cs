@@ -102,6 +102,10 @@ namespace Pathologic2WorldTuner
                 {
                     DistanceTweaks.ScanForWindow();
                 }
+                if (tab == FogTab)
+                {
+                    FogPresets.Reload(); // files may have been added or edited outside the game
+                }
                 if (tab == FogTab && fogWeather == null)
                 {
                     fogWeather = WeatherTweaks.LayerSnapshot(WeatherTweaks.Controller, WeatherLayer.BaseLayer)?.Name ?? FogTweaks.KnownWeathers[0];
@@ -284,8 +288,88 @@ namespace Pathologic2WorldTuner
 
         // ------------------------------------------------------------ Fog
 
+        private static string presetName = "My fog";
+        private static string presetDeleteArmed;
+
+        private static bool presetListOpen;
+
+        private static void DrawFogPresets()
+        {
+            FogPresets.EnsureLoaded();
+            string current = FogPresets.Matching(Time.unscaledTime, false);
+            GUILayout.Label("Presets", headerStyle);
+
+            // A drop-down: the button shows the preset the settings equal now; the list opens below it.
+            GUILayout.BeginHorizontal();
+            string shown = current != null ? current : "(own settings)";
+            if (GUILayout.Button((presetListOpen ? "▲  " : "▼  ") + shown, presetListOpen ? selectedButton : GUI.skin.button,
+                    GUILayout.Width(220)))
+            {
+                presetListOpen = !presetListOpen;
+            }
+            GUILayout.Space(12);
+            GUILayout.Label("Name", GUILayout.Width(40));
+            presetName = GUILayout.TextField(presetName ?? "", 40, GUILayout.Width(220));
+            FogPresets.Preset existing = FogPresets.Find(presetName ?? "");
+            bool valid = FogPresets.IsValidName(presetName);
+            bool oldEnabled = GUI.enabled;
+            GUI.enabled = valid;
+            if (GUILayout.Button(existing != null && !existing.BuiltIn ? "Overwrite" : "Save current", GUILayout.Width(130)))
+            {
+                CommitPending();
+                FogPresets.Save(presetName);
+                FogPresets.Matching(Time.unscaledTime, true);
+                presetDeleteArmed = null;
+            }
+            GUI.enabled = existing != null && !existing.BuiltIn;
+            bool armed = existing != null && string.Equals(presetDeleteArmed, existing.Name, StringComparison.OrdinalIgnoreCase);
+            if (GUILayout.Button(armed ? "Sure? Delete" : "Delete", armed ? selectedButton : GUI.skin.button, GUILayout.Width(110)))
+            {
+                if (armed)
+                {
+                    FogPresets.Delete(existing);
+                    presetDeleteArmed = null;
+                    FogPresets.Matching(Time.unscaledTime, true);
+                }
+                else
+                {
+                    presetDeleteArmed = existing.Name;
+                }
+            }
+            GUI.enabled = oldEnabled;
+            GUILayout.EndHorizontal();
+            if (presetListOpen)
+            {
+                foreach (FogPresets.Preset p in FogPresets.All)
+                {
+                    bool on = string.Equals(p.Name, current, StringComparison.OrdinalIgnoreCase);
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Space(16);
+                    if (GUILayout.Button(p.BuiltIn ? p.Name : p.Name + "  (own)", on ? selectedButton : GUI.skin.button, GUILayout.Width(204)))
+                    {
+                        CommitPending();
+                        FogPresets.Apply(p);
+                        FogPresets.Matching(Time.unscaledTime, true);
+                        if (!p.BuiltIn)
+                        {
+                            presetName = p.Name;
+                        }
+                        presetDeleteArmed = null;
+                        presetListOpen = false;
+                    }
+                    GUILayout.EndHorizontal();
+                }
+            }
+            GUILayout.Label("A preset holds every fog setting on this tab (mode, global and per-weather values, volumetric light, " +
+                            "fog shader). The drop-down shows the preset that equals the current settings. Built-in presets cannot be " +
+                            "overwritten. Own presets are files in BepInEx/config/pathologic2-world-tuner-fog-presets/ and can be shared.",
+                valid || string.IsNullOrWhiteSpace(presetName) ? hintStyle : warnStyle);
+            GUILayout.Space(8);
+        }
+
         private static void DrawFog()
         {
+            DrawFogPresets();
             GUILayout.Label("Fog mode", headerStyle);
             int mode = (int)FogTweaks.Mode.Value;
             int newMode = GUILayout.Toolbar(mode, FogModes);

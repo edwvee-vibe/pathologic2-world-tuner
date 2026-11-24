@@ -169,6 +169,20 @@ namespace Pathologic2WorldTuner
             Apply();
         }
 
+        /// <summary>Many settings are about to change at once (a preset): apply once at the end.</summary>
+        internal static void BeginBatch()
+        {
+            applying = true;
+        }
+
+        internal static void EndBatch()
+        {
+            applying = false;
+            dirty = true;
+            Apply();
+            ApplyCameraFogNow();
+        }
+
         internal static void MarkDirty()
         {
             dirty = true;

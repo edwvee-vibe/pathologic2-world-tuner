@@ -17,7 +17,9 @@ you play:
 - **Life & lights**: where street crowds appear and disappear and how many, how far lamps cast shadows and keep their
   light, the player's lantern (range, brightness, colour, shadows), birds per flock, falling leaves.
 - **Fog**: density, start distance, height fog level and sky haze, either one setting for every weather or a separate
-  setting for each weather. Volumetric light (light shafts) can be kept as in the game.
+  setting for each weather. Volumetric light (light shafts) can be kept as in the game. Presets in a drop-down: built-in
+  ones (Game, Lighter, Clear view, No fog, Thick) and your own, saved as shareable files in
+  `BepInEx\config\pathologic2-world-tuner-fog-presets\`.
 - **Draw distance**: how far objects, trees and people are drawn, how far real houses and districts are loaded,
   LOD bias, shadow distance, grass, terrain detail.
 - **Time of day**: set the hour or stop the clock.
