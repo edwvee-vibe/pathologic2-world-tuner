@@ -324,7 +324,11 @@ namespace Pathologic2WorldTuner
         {
             FogPresets.EnsureLoaded();
             string current = FogPresets.Matching(Time.unscaledTime, false);
-            GUILayout.Label("Presets", headerStyle);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Presets", headerStyle, GUILayout.ExpandWidth(false));
+            GUILayout.Label("  (BepInEx/config/pathologic2-world-tuner-fog-presets/)", footerStyle);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
 
             // A drop-down like an HTML select: it shows the preset the settings equal now.
             GUILayout.BeginHorizontal();
@@ -378,10 +382,6 @@ namespace Pathologic2WorldTuner
             }
             GUI.enabled = oldEnabled;
             GUILayout.EndHorizontal();
-            GUILayout.Label("A preset holds every fog setting on this tab (mode, global and per-weather values, volumetric light, " +
-                            "fog shader). The drop-down shows the preset that equals the current settings. Built-in presets cannot be " +
-                            "overwritten. Own presets are files in BepInEx/config/pathologic2-world-tuner-fog-presets/ and can be shared.",
-                valid || string.IsNullOrWhiteSpace(presetName) ? hintStyle : warnStyle);
             GUILayout.Space(8);
         }
 
