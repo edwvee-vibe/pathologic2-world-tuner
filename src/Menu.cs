@@ -363,14 +363,15 @@ namespace Pathologic2WorldTuner
             }
 
             GUILayout.BeginHorizontal();
-            Select("presets-" + store.Id, current ?? "(own settings)", store.ShownNames, currentIndex, store.PickAction, 220);
-            GUILayout.Space(12);
+            Select("presets-" + store.Id, current ?? "(own settings)", store.ShownNames, currentIndex, store.PickAction, 200);
+            // The row must fit the content width (ContentWidth) even with the scrollbar, or the whole column grows wider.
+            GUILayout.Space(10);
             GUILayout.Label("Name", GUILayout.Width(40));
-            store.NameField = GUILayout.TextField(store.NameField ?? "", 40, GUILayout.Width(220));
+            store.NameField = GUILayout.TextField(store.NameField ?? "", 40, GUILayout.Width(170));
             PresetStore.Preset existing = store.Find(store.NameField ?? "");
             bool oldEnabled = GUI.enabled;
             GUI.enabled = store.IsValidName(store.NameField);
-            if (GUILayout.Button(existing != null && !existing.BuiltIn ? "Overwrite" : "Save current", GUILayout.Width(130)))
+            if (GUILayout.Button(existing != null && !existing.BuiltIn ? "Overwrite" : "Save current", GUILayout.Width(115)))
             {
                 CommitPending();
                 store.Save(store.NameField);
@@ -378,7 +379,7 @@ namespace Pathologic2WorldTuner
             }
             GUI.enabled = existing != null && !existing.BuiltIn;
             bool armed = existing != null && string.Equals(store.DeleteArmed, existing.Name, StringComparison.OrdinalIgnoreCase);
-            if (GUILayout.Button(armed ? "Sure? Delete" : "Delete", armed ? selectedButton : GUI.skin.button, GUILayout.Width(110)))
+            if (GUILayout.Button(armed ? "Sure? Delete" : "Delete", armed ? selectedButton : GUI.skin.button, GUILayout.Width(105)))
             {
                 if (armed)
                 {
