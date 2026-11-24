@@ -184,7 +184,10 @@ every slider at Game the mod does not touch post-processing at all. Presets: *Vi
   assets and collects all garbage. The timer can be changed or switched off; "Clean up now" runs it at once.
 - **Garbage collector**: Game (off between cleanups) or Incremental (Unity's collector always on in small slices,
   an experiment), and its time slice.
-- **Loading**: background loading priority (the game uses Low), GPU upload time per frame and buffer size.
+- **Loading**: what limits how fast houses appear is how often each house checks its distance to the player (once a
+  second in the game; can be set down to 0.05 s, the checks are cheap) and that scenes load strictly one at a time
+  (parallel loading is an experiment: the developers turned it off). Background loading priority (the game uses Low)
+  and GPU upload time and buffer are there too, but hardly matter here: a house scene loads in 0.02-0.03 s.
 - **Texture streaming**: the budget for streamed textures and how far textures may be lowered to fit it, with the
   memory the textures want now.
 

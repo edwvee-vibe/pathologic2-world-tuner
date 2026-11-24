@@ -68,7 +68,8 @@ namespace Pathologic2WorldTuner
             GcSliceMs = cfg.Bind("Memory", "GcTimeSliceMs", -1f, new ConfigDescription(
                 "Time per frame for the incremental collector, ms. -1 = the build's (3 ms).", new AcceptableValueRange<float>(-1f, 50f)));
             Priority = cfg.Bind("Loading", "BackgroundPriority", LoadPriority.Game,
-                "Priority of background loading (houses, districts). Game = Low.");
+                "Priority of background loading (time per frame Unity spends finishing loaded scenes). Game = Low. Hardly matters in " +
+                "this game: scenes are small; HouseCheckInterval and ParallelSceneLoading are what limit how fast houses appear.");
             UploadSliceMs = cfg.Bind("Loading", "UploadTimeSliceMs", -1f, new ConfigDescription(
                 "Time per frame for uploading loaded textures and meshes to the GPU, ms. -1 = the game's.", new AcceptableValueRange<float>(-1f, 33f)));
             UploadBufferMb = cfg.Bind("Loading", "UploadBufferMb", -1f, new ConfigDescription(

@@ -115,8 +115,17 @@ namespace Pathologic2WorldTuner
                 MemoryTweaks.Priority.Value = (LoadPriority)newPr;
                 Plugin.RequestSave();
             }
-            GUILayout.Label($"      Now: {Application.backgroundLoadingPriority}. Higher priority loads houses and districts sooner, " +
-                            "but the frames in which they are integrated may get longer.", hintStyle);
+            GUILayout.Label($"      Now: {Application.backgroundLoadingPriority}. Time per frame Unity spends finishing loaded scenes. " +
+                            "In this game it hardly matters: a house scene takes 0.02-0.03 s to load (Player.log), what holds houses back " +
+                            "is the two settings below.", hintStyle);
+            FloatRow("House distance check", LoadingTweaks.HouseCheckInterval, 0.05f, 2f, 0.05f, Mode.Absolute, LoadingTweaks.GameInterval,
+                v => $"every {v:0.00} s");
+            PlainToggle(LoadingTweaks.ParallelScenes, " Load several scenes at once (experiment)");
+            GUILayout.Label("House distance check: each house checks its distance to you this often to start loading (the game: once a " +
+                            "second, so a house may start up to 1 s late); the checks are cheap. Several scenes at once: the game loads " +
+                            "house and district scenes strictly one after another; the developers turned parallel loading off, so it " +
+                            "may cause hitches or errors. Both apply in a running game.",
+                LoadingTweaks.ParallelScenes.Value ? warnStyle : hintStyle);
             FloatRow("GPU upload per frame", MemoryTweaks.UploadSliceMs, 1f, 33f, 1f, Mode.Absolute, MemoryTweaks.GameUploadSlice, v => $"{v:0} ms");
             FloatRow("GPU upload buffer", MemoryTweaks.UploadBufferMb, 4f, 512f, 1f, Mode.AbsoluteLog, MemoryTweaks.GameUploadBuffer,
                 v => $"{v:0} MB", null, true);

@@ -37,7 +37,7 @@ namespace Pathologic2WorldTuner
         private static readonly Action FogTick = FogTweaks.Tick, DistanceTick = DistanceTweaks.Tick, TimeTick = TimeTweaks.Tick,
             SpeedTick = PlayerSpeed.Tick, DistanceFrame = DistanceTweaks.FrameTick, TimeFrame = TimeTweaks.FrameTick,
             FreezeFrame = NpcFreeze.Tick, FreeCameraTick = FreeCamera.Tick, MemoryTick = MemoryTweaks.Tick,
-            SkyTick = SkyTweaks.Tick, SkyFrame = SkyTweaks.FrameTick, LifeTick = LifeTweaks.Tick, ShaderTimeFrame = FrozenShaderTime.FrameTick,
+            SkyTick = SkyTweaks.Tick, SkyFrame = SkyTweaks.FrameTick, LifeTick = LifeTweaks.Tick, LoadingTick = LoadingTweaks.Tick, ShaderTimeFrame = FrozenShaderTime.FrameTick,
             FreeCameraRestore = FreeCamera.WatchRestore;
         private PhysicsMeter meter;
         private HitchMonitor monitor;
@@ -70,6 +70,7 @@ namespace Pathologic2WorldTuner
             LifeTweaks.BindConfig(Config);
             RunStopSmoothing.BindConfig(Config);
             LandingPush.BindConfig(Config);
+            LoadingTweaks.BindConfig(Config);
 
             // Sliders change values often, so the file is written on mouse release, not on every change.
             Config.SaveOnConfigSet = false;
@@ -164,6 +165,7 @@ namespace Pathologic2WorldTuner
                 SafeTick("memory", MemoryTick);
                 SafeTick("sky", SkyTick);
                 SafeTick("life", LifeTick);
+                SafeTick("loading", LoadingTick);
                 if (FreeCamera.Active)
                 {
                     SafeTick("free camera", FreeCameraTick);
