@@ -148,7 +148,7 @@ namespace Pathologic2WorldTuner
                             (g.ColorGrading ? "" : " (colour grading is off in the game)"), hintStyle);
 
             ScaleRow("Bloom", ImageTweaks.Bloom, 4f, g.Bloom, g.BloomIntensity);
-            ScaleRow("Vignette", ImageTweaks.Vignette, 2f, g.Vignette, g.VignetteIntensity);
+            FloatRow("Vignette", ImageTweaks.Vignette, 0f, 1f, 0.01f, Mode.Plain, 0f, v => v <= 0f ? "none" : $"{v:0.00}");
             ScaleRow("Chromatic aberration", ImageTweaks.Chromatic, 4f, g.Chromatic, g.ChromaticIntensity);
             ScaleRow("Film grain", ImageTweaks.Grain, 4f, g.Grain, g.GrainIntensity);
             GUI.enabled = g.EyeAdaptation || ImageTweaks.NoAutoExposure.Value;
@@ -158,8 +158,9 @@ namespace Pathologic2WorldTuner
             GUI.enabled = oldEnabled;
 
             GUILayout.Label("Applied after the game's own effects. Screen effects scales how much the player's state (tiredness, " +
-                            "infection, pain, focus) shifts colour and chromatic aberration; 0 keeps the picture neutral. Vignette also " +
-                            "scales the red vignette of damage. With every slider at Game the mod does not touch post-processing at all.",
+                            "infection, pain, focus) shifts colour and chromatic aberration; 0 keeps the picture neutral. Vignette darkens the " +
+                            "edges (the red vignette of damage still shows when stronger). With every slider at Game the mod does not touch " +
+                            "post-processing at all.",
                 hintStyle);
         }
 

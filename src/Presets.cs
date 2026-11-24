@@ -373,12 +373,13 @@ namespace Pathologic2WorldTuner
                 B("Game"),
                 B("Vivid", "Image.Saturation", "1.45", "Image.Contrast", "1.2", "Image.Exposure", "0.15", "Image.Bloom", "1.4"),
                 B("Bleak", "Image.Saturation", "0.45", "Image.Contrast", "1.2", "Image.Temperature", "-18", "Image.Tint", "4",
-                    "Image.Exposure", "-0.25", "Image.Bloom", "0.6"),
+                    "Image.Exposure", "-0.25", "Image.Bloom", "0.6", "Image.VignetteAmount", "0.3"),
                 B("Plague", "Image.Saturation", "0.7", "Image.Tint", "-28", "Image.Temperature", "-8", "Image.Contrast", "1.12",
-                    "Image.ChromaticAberration", "3.5", "Image.Exposure", "-0.1"),
+                    "Image.ChromaticAberration", "3.5", "Image.Exposure", "-0.1", "Image.VignetteAmount", "0.35"),
                 B("Old photo", "Image.Saturation", "0.12", "Image.Temperature", "38", "Image.Tint", "6", "Image.Contrast", "1.15",
-                    "Image.Bloom", "1.6", "Image.ChromaticAberration", "3"),
-                B("Noir", "Image.Saturation", "0", "Image.Contrast", "1.45", "Image.Exposure", "-0.2", "Image.Bloom", "1.2")
+                    "Image.Bloom", "1.6", "Image.ChromaticAberration", "3", "Image.VignetteAmount", "0.45"),
+                B("Noir", "Image.Saturation", "0", "Image.Contrast", "1.45", "Image.Exposure", "-0.2", "Image.Bloom", "1.2",
+                    "Image.VignetteAmount", "0.4")
             });
     }
 }

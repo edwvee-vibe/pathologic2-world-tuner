@@ -74,7 +74,8 @@ namespace Pathologic2WorldTuner
             EffectsStrength = Bind(cfg, s, "ScreenEffectsStrength", 1f, 0f, 2f,
                 "Strength of the screen effects of the player's state (tiredness, infection, pain...) on colour and chromatic aberration. 1 = as in the game, 0 = none.");
             Bloom = Bind(cfg, s, "Bloom", 1f, 0f, 4f, "Bloom intensity multiplier. 1 = as in the game.");
-            Vignette = Bind(cfg, s, "Vignette", 1f, 0f, 2f, "Vignette intensity multiplier (also the red vignette of damage). 1 = as in the game.");
+            Vignette = Bind(cfg, s, "VignetteAmount", 0f, 0f, 1f,
+                "Darkened screen edges, 0-1. 0 = as in the game (it has no vignette, only the red one of damage, which still shows when stronger).");
             Chromatic = Bind(cfg, s, "ChromaticAberration", 1f, 0f, 4f, "Chromatic aberration multiplier. 1 = as in the game.");
             Grain = Bind(cfg, s, "Grain", 1f, 0f, 4f, "Film grain multiplier. 1 = as in the game.");
             NoAutoExposure = cfg.Bind(s, "DisableAutoExposure", false, "Switch off the eye adaptation (auto exposure), if the game uses it.");
@@ -110,7 +111,7 @@ namespace Pathologic2WorldTuner
 
         internal static bool DofActive => Dof.Value == DofMode.Always || (Dof.Value == DofMode.FreeCameraOnly && FreeCamera.Active);
 
-        internal static bool AnyChanged => ColorChanged || Changed(Bloom, 1f) || Changed(Vignette, 1f) ||
+        internal static bool AnyChanged => ColorChanged || Changed(Bloom, 1f) || Changed(Vignette, 0f) ||
                                            Changed(Chromatic, 1f) || Changed(Grain, 1f) || NoAutoExposure.Value || DofActive ||
                                            TimeTweaks.Speed == 0f;
 
@@ -167,7 +168,7 @@ namespace Pathologic2WorldTuner
             Tint.Value = 0f;
             EffectsStrength.Value = 1f;
             Bloom.Value = 1f;
-            Vignette.Value = 1f;
+            Vignette.Value = 0f;
             Chromatic.Value = 1f;
             Grain.Value = 1f;
             NoAutoExposure.Value = false;
@@ -276,11 +277,20 @@ namespace Pathologic2WorldTuner
                 p.bloom = bloom;
             }
 
-            if (Changed(Vignette, 1f) && Game.Vignette)
+            if (Vignette.Value > 0f)
             {
-                VignetteModel.Settings s = p.vignette.settings;
-                s.intensity *= Vignette.Value;
-                vignette.enabled = Vignette.Value > 0f;
+                // The game's vignette is 0 except for the red one of damage: the mod's darkening is used unless that is stronger.
+                VignetteModel.Settings s = Game.Vignette ? p.vignette.settings : VignetteModel.Settings.defaultSettings;
+                if (s.intensity < Vignette.Value)
+                {
+                    if (s.intensity < 0.01f)
+                    {
+                        s.color = Color.black;
+                    }
+                    s.mode = VignetteModel.Mode.Classic;
+                    s.intensity = Vignette.Value;
+                }
+                vignette.enabled = true;
                 vignette.settings = s;
                 p.vignette = vignette;
             }
