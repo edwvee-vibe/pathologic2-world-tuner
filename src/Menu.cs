@@ -642,8 +642,11 @@ namespace Pathologic2WorldTuner
             FloatRow("With a weapon out", PlayerSpeed.Fight, 0.25f, 4f, 0.05f, Mode.Scale, 1f, v => $"x{v:0.00}");
             FloatRow("Jump", PlayerSpeed.Jump, 0.5f, 30f, 0.05f, Mode.AbsoluteLog, PlayerSpeed.Game(5, 5f), MetersPerSecond);
             FloatRow("Gravity", PlayerSpeed.Gravity, 0.1f, 10f, 0.05f, Mode.AbsoluteLog, PlayerSpeed.Game(6, 1f), v => $"x{v:0.00}");
+            FloatRow("Run stop smoothing", RunStopSmoothing.Seconds, 0f, 1f, 0.05f, Mode.Plain, 0f, v => v <= 0f ? "off" : $"{v:0.00} s");
             GUILayout.Label("Saved and applied on every start. Running is also scaled by the game's own run modifier (tiredness and the like). " +
-                            "\"With a weapon out\" scales all nine combat speeds (forward, backward, strafe; normal, sneaking, running).", hintStyle);
+                            "\"With a weapon out\" scales all nine combat speeds (forward, backward, strafe; normal, sneaking, running). " +
+                            "Run stop smoothing: when running stops (Shift released or stamina run out, also on landing after a jump) the " +
+                            "game drops to walking speed at once and the view jerks; this slows down over the set time instead.", hintStyle);
         }
 
         private static string MetersPerSecond(float v) => $"{v:0.00} m/s";

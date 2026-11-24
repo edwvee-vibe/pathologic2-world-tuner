@@ -68,6 +68,7 @@ namespace Pathologic2WorldTuner
             SkyTweaks.BindConfig(Config);
             FrozenShaderTime.BindConfig(Config);
             LifeTweaks.BindConfig(Config);
+            RunStopSmoothing.BindConfig(Config);
 
             // Sliders change values often, so the file is written on mouse release, not on every change.
             Config.SaveOnConfigSet = false;
@@ -79,6 +80,7 @@ namespace Pathologic2WorldTuner
             TryPatch(harmony, typeof(FogPatches), "fog / volumetric light");
             TryPatch(harmony, typeof(DistancePatches), "quality settings");
             TryPatch(harmony, typeof(TimePatches), "time of day (save guard)");
+            RunStopSmoothing.Refresh();
 
             SceneManager.sceneLoaded += (scene, mode) => { MemoryTweaks.ScenesLoaded++; DistanceTweaks.OnSceneLoaded(scene); };
             SceneManager.sceneUnloaded += scene => MemoryTweaks.ScenesUnloaded++;
