@@ -14,7 +14,8 @@ namespace Pathologic2WorldTuner
         private const float SelectItemHeight = 24f;
 
         private static string selectOpenId;       // which select is open (null = none)
-        private static Vector2 selectScreenPos;    // bottom-left of the box, in screen space
+        private static Rect selectBoxRect;         // the box, in the scroll view's content coordinates
+        private static Vector2 scrollContentOrigin; // the content's top-left in the window (set by DrawWindow)
         private static float selectWidth;
         private static string[] selectItems;
         private static int selectCurrent;
@@ -57,10 +58,9 @@ namespace Pathologic2WorldTuner
             if (open)
             {
                 // Remember where the list goes (the scroll view and the window move it) and what it shows.
-                Rect r = GUILayoutUtility.GetLastRect();
                 if (Event.current.type == EventType.Repaint)
                 {
-                    selectScreenPos = GUIUtility.GUIToScreenPoint(new Vector2(r.x, r.yMax));
+                    selectBoxRect = GUILayoutUtility.GetLastRect();
                 }
                 selectWidth = width;
                 selectItems = items;
@@ -69,10 +69,16 @@ namespace Pathologic2WorldTuner
             }
         }
 
+        /// <summary>The box in window coordinates (the list and its clicks are handled at the window level).</summary>
+        private static Rect SelectBoxInWindow()
+        {
+            return new Rect(scrollContentOrigin.x + selectBoxRect.x, scrollContentOrigin.y + selectBoxRect.y, selectBoxRect.width, selectBoxRect.height);
+        }
+
         private static Rect SelectListRect()
         {
-            Vector2 p = GUIUtility.ScreenToGUIPoint(selectScreenPos);
-            return new Rect(p.x, p.y + 2f, selectWidth, (selectItems?.Length ?? 0) * SelectItemHeight + 4f);
+            Rect box = SelectBoxInWindow();
+            return new Rect(box.x, box.yMax + 2f, Mathf.Max(box.width, selectWidth), (selectItems?.Length ?? 0) * SelectItemHeight + 4f);
         }
 
         /// <summary>At the start of the window: clicks and the wheel while the list is open belong to the list.</summary>
@@ -108,9 +114,7 @@ namespace Pathologic2WorldTuner
             else
             {
                 // A click on the box itself is left to the box, which closes the list.
-                Vector2 box = GUIUtility.ScreenToGUIPoint(selectScreenPos);
-                var boxRect = new Rect(box.x, box.y - 26f, selectWidth, 26f);
-                if (!boxRect.Contains(e.mousePosition))
+                if (!SelectBoxInWindow().Contains(e.mousePosition))
                 {
                     CloseSelect();
                     e.Use();
@@ -139,7 +143,7 @@ namespace Pathologic2WorldTuner
                 {
                     GUI.DrawTexture(r, selectHoverBackground);
                 }
-                (i == selectCurrent ? selectItemOnStyle : selectItemStyle).Draw(r, selectItems[i], false, false, false, false);
+                GUI.Label(r, selectItems[i], i == selectCurrent ? selectItemOnStyle : selectItemStyle);
             }
         }
 
@@ -152,6 +156,10 @@ namespace Pathologic2WorldTuner
             selectListBackground = MakeTexture(new Color(0.16f, 0.16f, 0.18f, 0.98f));
             selectHoverBackground = MakeTexture(new Color(0.30f, 0.30f, 0.34f, 1f));
             selectBoxStyle = new GUIStyle(GUI.skin.textField) { alignment = TextAnchor.MiddleLeft, padding = new RectOffset(8, 8, 3, 3) };
+            selectBoxStyle.normal.textColor = Color.white;
+            selectBoxStyle.hover.textColor = Color.white;
+            selectBoxStyle.active.textColor = Color.white;
+            selectBoxStyle.focused.textColor = Color.white;
             selectItemStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleLeft, padding = new RectOffset(8, 8, 2, 2) };
             selectItemStyle.normal.textColor = new Color(0.88f, 0.88f, 0.88f);
             selectItemOnStyle = new GUIStyle(selectItemStyle) { fontStyle = FontStyle.Bold };

@@ -211,6 +211,12 @@ namespace Pathologic2WorldTuner
                 contentHeight[tab] = GUILayoutUtility.GetLastRect().height;
             }
             GUILayout.EndScrollView();
+            if (Event.current.type == EventType.Repaint)
+            {
+                // Where the scroll view's content starts in the window: drop-down lists are placed from it.
+                Rect view = GUILayoutUtility.GetLastRect();
+                scrollContentOrigin = new Vector2(view.x + area.padding.left, view.y + area.padding.top) - scroll;
+            }
 
             GUILayout.Space(8);
             GUILayout.BeginHorizontal();
