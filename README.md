@@ -170,8 +170,8 @@ aperture, focal length, blur size.
 Applied after the game's own effects, every frame, to the game camera's post-processing (Post Processing Stack v1).
 **Screen effects** scales how much the player's state (tiredness, infection, pain) shifts colour and chromatic
 aberration: 0 keeps the picture neutral. Effects that are off in the game (for example grain) cannot be scaled. With
-every slider at Game the mod does not touch post-processing at all. Presets: *Clean* (no screen effects), *Vivid*,
-*Bleak*, *Plague*, *Old photo*, *Noir*, *Dream*. TAA sharpness is in the DLSS mod.
+every slider at Game the mod does not touch post-processing at all. Presets: *Vivid*, *Bleak*, *Plague*, *Old photo*,
+*Noir*. TAA sharpness is in the DLSS mod.
 
 ### Memory & loading
 

@@ -371,7 +371,6 @@ namespace Pathologic2WorldTuner
             new[]
             {
                 B("Game"),
-                B("Clean", "Image.ScreenEffectsStrength", "0", "Image.ChromaticAberration", "0"),
                 B("Vivid", "Image.Saturation", "1.45", "Image.Contrast", "1.2", "Image.Exposure", "0.15", "Image.Bloom", "1.4"),
                 B("Bleak", "Image.Saturation", "0.45", "Image.Contrast", "1.2", "Image.Temperature", "-18", "Image.Tint", "4",
                     "Image.Exposure", "-0.25", "Image.Bloom", "0.6"),
@@ -379,9 +378,7 @@ namespace Pathologic2WorldTuner
                     "Image.ChromaticAberration", "3.5", "Image.Exposure", "-0.1"),
                 B("Old photo", "Image.Saturation", "0.12", "Image.Temperature", "38", "Image.Tint", "6", "Image.Contrast", "1.15",
                     "Image.Bloom", "1.6", "Image.ChromaticAberration", "3"),
-                B("Noir", "Image.Saturation", "0", "Image.Contrast", "1.45", "Image.Exposure", "-0.2", "Image.Bloom", "1.2"),
-                B("Dream", "Image.Bloom", "3.5", "Image.Contrast", "0.8", "Image.Saturation", "1.15", "Image.Temperature", "12",
-                    "Image.Exposure", "0.35")
+                B("Noir", "Image.Saturation", "0", "Image.Contrast", "1.45", "Image.Exposure", "-0.2", "Image.Bloom", "1.2")
             });
     }
 }
