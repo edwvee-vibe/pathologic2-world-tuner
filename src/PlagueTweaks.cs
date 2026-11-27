@@ -20,7 +20,7 @@ namespace Pathologic2WorldTuner
     internal static class PlagueTweaks
     {
         internal static ConfigEntry<bool> GameFogInInfected, GroundFogInInfected;
-        internal static ConfigEntry<float> ParticlesScale, VeilScale, FadeSeconds;
+        internal static ConfigEntry<float> ParticlesScale, VeilScale, FadeSeconds, FadeOutSeconds;
 
         internal static float Level = -1f;   // raw infection level at the camera (-1 = not measured)
         internal static float Weight;        // smoothed level used by the fog options
@@ -49,8 +49,10 @@ namespace Pathologic2WorldTuner
                 "Experiment. Multiplier of the plague veil (the shafts of haze over infected districts). 1 = as in the game, 0 = hidden.",
                 new AcceptableValueRange<float>(0f, 10f)));
             FadeSeconds = cfg.Bind("Plague", "FadeSeconds", 2.5f, new ConfigDescription(
-                "How long the infected-district fog options take to fade in and out at the district border, seconds. 0 = at once.",
+                "How long the infected-district fog options take to fade in when entering a district, seconds. 0 = at once.",
                 new AcceptableValueRange<float>(0f, 20f)));
+            FadeOutSeconds = cfg.Bind("Plague", "FadeOutSeconds", 1f, new ConfigDescription(
+                "How long they take to fade out when leaving a district, seconds. 0 = at once.", new AcceptableValueRange<float>(0f, 20f)));
             GameFogInInfected.SettingChanged += (s, e) =>
             {
                 Measure(true);
@@ -118,7 +120,7 @@ namespace Pathologic2WorldTuner
         internal static void FrameTick()
         {
             float target = Target;
-            float fade = FadeSeconds.Value;
+            float fade = target > Weight ? FadeSeconds.Value : FadeOutSeconds.Value;
             Weight = fade <= 0f ? target : Mathf.MoveTowards(Weight, target, Time.unscaledDeltaTime / fade);
             if (GameFogInInfected.Value && (Math.Abs(Weight - appliedFogWeight) >= 0.02f || Weight == target))
             {
