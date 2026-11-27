@@ -530,7 +530,9 @@ namespace Pathologic2WorldTuner
         private static void DrawPlague()
         {
             GUILayout.Space(10);
-            GUILayout.Label("Infected districts (experiments)", headerStyle);
+            GUILayout.Label("Infected districts", headerStyle);
+            GUILayout.Label("Compensation for a lighter fog: without the game's fog the plague particles and haze of infected districts " +
+                            "are hardly visible.", hintStyle);
             PlagueTweaks.Measure(false); // twice a second at most, while this tab is shown
             float level = PlagueTweaks.Level;
             GUILayout.Label(level < 0f ? "Infection here: not known (main menu or loading)."
