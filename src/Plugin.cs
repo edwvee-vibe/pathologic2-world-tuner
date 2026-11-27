@@ -37,7 +37,7 @@ namespace Pathologic2WorldTuner
         private static readonly Action FogTick = FogTweaks.Tick, DistanceTick = DistanceTweaks.Tick, TimeTick = TimeTweaks.Tick,
             SpeedTick = PlayerSpeed.Tick, DistanceFrame = DistanceTweaks.FrameTick, TimeFrame = TimeTweaks.FrameTick,
             FreezeFrame = NpcFreeze.Tick, FreeCameraTick = FreeCamera.Tick, MemoryTick = MemoryTweaks.Tick,
-            SkyTick = SkyTweaks.Tick, SkyFrame = SkyTweaks.FrameTick, LifeTick = LifeTweaks.Tick, LoadingTick = LoadingTweaks.Tick, ShaderTimeFrame = FrozenShaderTime.FrameTick,
+            SkyTick = SkyTweaks.Tick, SkyFrame = SkyTweaks.FrameTick, LifeTick = LifeTweaks.Tick, LoadingTick = LoadingTweaks.Tick, PlagueTick = PlagueTweaks.Tick, PlagueFrame = PlagueTweaks.FrameTick, ShaderTimeFrame = FrozenShaderTime.FrameTick,
             FreeCameraRestore = FreeCamera.WatchRestore;
         private PhysicsMeter meter;
         private HitchMonitor monitor;
@@ -71,6 +71,7 @@ namespace Pathologic2WorldTuner
             RunStopSmoothing.BindConfig(Config);
             LandingPush.BindConfig(Config);
             LoadingTweaks.BindConfig(Config);
+            PlagueTweaks.BindConfig(Config);
 
             // Sliders change values often, so the file is written on mouse release, not on every change.
             Config.SaveOnConfigSet = false;
@@ -166,6 +167,7 @@ namespace Pathologic2WorldTuner
                 SafeTick("sky", SkyTick);
                 SafeTick("life", LifeTick);
                 SafeTick("loading", LoadingTick);
+                SafeTick("plague", PlagueTick);
                 if (FreeCamera.Active)
                 {
                     SafeTick("free camera", FreeCameraTick);
@@ -180,6 +182,10 @@ namespace Pathologic2WorldTuner
             if (Time.timeScale == 0f || FrozenShaderTime.Attached)
             {
                 SafeTick("shader time", ShaderTimeFrame);
+            }
+            if (PlagueTweaks.NeedsFrame)
+            {
+                SafeTick("plague (frame)", PlagueFrame);
             }
             if (FreeCamera.RestorePending)
             {

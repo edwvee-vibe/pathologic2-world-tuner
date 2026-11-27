@@ -191,7 +191,26 @@ namespace Pathologic2WorldTuner
         private static bool templatesTouched, cameraFogTouched;
 
         private static bool CameraFogActive =>
-            DistanceDensity.Value >= 0f || HeightDensity.Value >= 0f || DisableDistanceFog.Value || DisableHeightFog.Value;
+            DistanceDensity.Value >= 0f || HeightDensity.Value >= 0f || DisableDistanceFog.Value || DisableHeightFog.Value || GroundWeight > 0f;
+
+        /// <summary>0-1: how far the fog profile goes back to the game's in an infected district (PlagueTweaks).</summary>
+        internal static float InfectedWeight;
+
+        /// <summary>0-1: extra height (ground) fog in an infected district, up to x4 of the camera's height fog density.</summary>
+        internal static float GroundWeight;
+
+        /// <summary>Re-write the templates now (the infection weight changed).</summary>
+        internal static void ApplyNow()
+        {
+            if (Mode.Value == FogMode.Off && !templatesTouched)
+            {
+                return; // the fog is the game's anyway
+            }
+            dirty = true;
+            Apply();
+        }
+
+        private static float Toward(float value, float game) => value + (game - value) * InfectedWeight;
 
         internal static void Tick()
         {
@@ -272,10 +291,11 @@ namespace Pathologic2WorldTuner
                 ws.Night.Fogginess = o.NightFogginess;
                 return;
             }
-            ws.Fog.Density = o.Density * p.DensityScale.Value;
-            ws.Fog.StartDistance = o.Start + p.StartOffset.Value;
-            ws.Fog.Height = p.Height.Value >= 0f ? p.Height.Value : o.Height;
-            float fs = p.FogginessScale.Value;
+            // In an infected district (PlagueTweaks) every value moves back to the game's by InfectedWeight.
+            ws.Fog.Density = o.Density * Toward(p.DensityScale.Value, 1f);
+            ws.Fog.StartDistance = o.Start + Toward(p.StartOffset.Value, 0f);
+            ws.Fog.Height = p.Height.Value >= 0f ? Toward(p.Height.Value, o.Height) : o.Height;
+            float fs = Toward(p.FogginessScale.Value, 1f);
             ws.Day.Fogginess = Math.Abs(fs - 1f) < 0.0001f ? o.DayFogginess : Mathf.Clamp01(o.DayFogginess * fs);
             ws.Night.Fogginess = Math.Abs(fs - 1f) < 0.0001f ? o.NightFogginess : Mathf.Clamp01(o.NightFogginess * fs);
         }
@@ -365,7 +385,7 @@ namespace Pathologic2WorldTuner
                     if (sb.Target != null && sb.Current is WeatherSnapshot cur)
                     {
                         FogProfile p = ActiveProfile(snap.Name);
-                        float k = p == null ? 1f : p.DensityScale.Value;
+                        float k = p == null ? 1f : Toward(p.DensityScale.Value, 1f);
                         layerDensity = k > 0.001f ? cur.Fog.Density / k : o.Density;
                     }
                     value = value * (1f - opacity) + layerDensity * opacity;
@@ -409,6 +429,7 @@ namespace Pathologic2WorldTuner
             }
             float dd = DistanceDensity.Value >= 0f ? Mathf.Max(0.001f, DistanceDensity.Value) : gameDistanceDensity;
             float hd = HeightDensity.Value >= 0f ? Mathf.Max(0.001f, HeightDensity.Value) : gameHeightDensity;
+            hd *= 1f + 3f * GroundWeight; // ground fog in an infected district (PlagueTweaks)
             bool df = gameDistanceFog && !DisableDistanceFog.Value;
             bool hf = gameHeightFog && !DisableHeightFog.Value;
             if (fog.distanceDensity != dd) fog.distanceDensity = dd;
