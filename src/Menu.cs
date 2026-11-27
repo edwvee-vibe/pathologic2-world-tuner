@@ -540,10 +540,11 @@ namespace Pathologic2WorldTuner
             PlainToggle(PlagueTweaks.GameFogInInfected, " Game fog in infected districts");
             PlainToggle(PlagueTweaks.GroundFogInInfected, " Ground fog in infected districts");
             GUILayout.EndHorizontal();
+            DefaultRow("Fade time", PlagueTweaks.FadeSeconds, 0f, 20f, 2.5f, v => v <= 0f ? "at once" : $"{v:0.0} s", false);
             FloatRow("Plague particles", PlagueTweaks.ParticlesScale, 0f, 10f, 0.05f, Mode.Scale, 1f, v => $"x{v:0.00}", null, true);
             FloatRow("Plague veil", PlagueTweaks.VeilScale, 0f, 10f, 0.05f, Mode.Scale, 1f, v => v <= 0f ? "hidden" : $"x{v:0.00}", null, true);
             GUILayout.Label("The game has no fog of its own for infected districts; these are ways to bring the mood back with a lighter " +
-                            "fog. Game fog: inside an infected district your fog profile goes back to the game's (fading over ~2.5 s). " +
+                            "fog. Game fog: inside an infected district your fog profile goes back to the game's (fading over the fade time). " +
                             "Ground fog: the camera's height fog gets 4 times denser there. Particles: the falling plague flakes. Veil: " +
                             "the thin shafts of haze the game draws over infected ground (0 hides them, to see what they add). " +
                             "Sliders apply when released.", hintStyle);

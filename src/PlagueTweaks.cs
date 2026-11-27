@@ -20,7 +20,7 @@ namespace Pathologic2WorldTuner
     internal static class PlagueTweaks
     {
         internal static ConfigEntry<bool> GameFogInInfected, GroundFogInInfected;
-        internal static ConfigEntry<float> ParticlesScale, VeilScale;
+        internal static ConfigEntry<float> ParticlesScale, VeilScale, FadeSeconds;
 
         internal static float Level = -1f;   // raw infection level at the camera (-1 = not measured)
         internal static float Weight;        // smoothed level used by the fog options
@@ -48,6 +48,9 @@ namespace Pathologic2WorldTuner
             VeilScale = cfg.Bind("Plague", "VeilScale", 1f, new ConfigDescription(
                 "Experiment. Multiplier of the plague veil (the shafts of haze over infected districts). 1 = as in the game, 0 = hidden.",
                 new AcceptableValueRange<float>(0f, 10f)));
+            FadeSeconds = cfg.Bind("Plague", "FadeSeconds", 2.5f, new ConfigDescription(
+                "How long the infected-district fog options take to fade in and out at the district border, seconds. 0 = at once.",
+                new AcceptableValueRange<float>(0f, 20f)));
             GameFogInInfected.SettingChanged += (s, e) =>
             {
                 Measure(true);
@@ -115,7 +118,8 @@ namespace Pathologic2WorldTuner
         internal static void FrameTick()
         {
             float target = Target;
-            Weight = Mathf.MoveTowards(Weight, target, Time.unscaledDeltaTime / 2.5f);
+            float fade = FadeSeconds.Value;
+            Weight = fade <= 0f ? target : Mathf.MoveTowards(Weight, target, Time.unscaledDeltaTime / fade);
             if (GameFogInInfected.Value && (Math.Abs(Weight - appliedFogWeight) >= 0.02f || Weight == target))
             {
                 SetFogWeight(Weight);
