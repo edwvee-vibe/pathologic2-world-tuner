@@ -323,6 +323,11 @@ namespace Pathologic2WorldTuner
             GUILayout.Label("Presets", headerStyle, GUILayout.ExpandWidth(false));
             GUILayout.Label("  (BepInEx/config/" + Path.GetFileName(store.Folder) + "/)", footerStyle);
             GUILayout.FlexibleSpace();
+            int hidden = store.HiddenCount;
+            if (hidden > 0 && GUILayout.Button($"Restore built-in ({hidden})", GUILayout.Width(170)))
+            {
+                store.RestoreBuiltIns();
+            }
             GUILayout.EndHorizontal();
 
             List<PresetStore.Preset> all = store.All;
@@ -354,9 +359,9 @@ namespace Pathologic2WorldTuner
                     PresetStore.Preset p = store.All[i];
                     CommitPending();
                     store.Apply(p);
-                    if (!p.BuiltIn)
+                    if (!PresetStore.IsGame(p))
                     {
-                        store.NameField = p.Name;
+                        store.NameField = p.Name; // so Delete (and Overwrite for own presets) acts on the chosen one
                     }
                     store.DeleteArmed = null;
                 };
@@ -377,7 +382,7 @@ namespace Pathologic2WorldTuner
                 store.Save(store.NameField);
                 store.DeleteArmed = null;
             }
-            GUI.enabled = existing != null && !existing.BuiltIn;
+            GUI.enabled = existing != null && !PresetStore.IsGame(existing);
             bool armed = existing != null && string.Equals(store.DeleteArmed, existing.Name, StringComparison.OrdinalIgnoreCase);
             if (GUILayout.Button(armed ? "Sure? Delete" : "Delete", armed ? selectedButton : GUI.skin.button, GUILayout.Width(105)))
             {

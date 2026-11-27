@@ -98,10 +98,42 @@ namespace Pathologic2WorldTuner
             return entries;
         }
 
+        // Built-in presets the user deleted (all sets in one config entry: "fog:Lighter;image:Vivid"). Game cannot be deleted.
+        private static ConfigEntry<string> hiddenEntry;
+
+        private static ConfigEntry<string> Hidden => hiddenEntry ?? (hiddenEntry = Plugin.Cfg.Bind("Presets", "HiddenBuiltIn", "",
+            "Built-in presets deleted in the window, as set:name separated by ';'. Empty = all shown."));
+
+        private bool IsHidden(Preset p)
+        {
+            if (!p.BuiltIn || IsGame(p))
+            {
+                return false;
+            }
+            string key = Id + ":" + p.Name;
+            return Hidden.Value.Split(';').Any(k => string.Equals(k.Trim(), key, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public static bool IsGame(Preset p) => p != null && p.BuiltIn && string.Equals(p.Name, "Game", StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>How many built-in presets of this set are deleted (hidden).</summary>
+        public int HiddenCount => builtIns.Count(IsHidden);
+
+        public void RestoreBuiltIns()
+        {
+            string prefix = Id + ":";
+            Hidden.Value = string.Join(";", Hidden.Value.Split(';')
+                .Where(k => k.Trim().Length > 0 && !k.Trim().StartsWith(prefix, StringComparison.OrdinalIgnoreCase)));
+            Plugin.RequestSave();
+            Reload();
+            nextMatch = 0f;
+            Plugin.ShowMessage($"{Title}: built-in presets restored");
+        }
+
         public void Reload()
         {
             All.Clear();
-            All.AddRange(builtIns);
+            All.AddRange(builtIns.Where(b => !IsHidden(b)));
             try
             {
                 if (Directory.Exists(Folder))
@@ -273,8 +305,18 @@ namespace Pathologic2WorldTuner
 
         public void Delete(Preset p)
         {
-            if (p == null || p.BuiltIn)
+            if (p == null || IsGame(p))
             {
+                return;
+            }
+            if (p.BuiltIn)
+            {
+                // Built-in presets live in the code: deleting one hides it (the header's Restore button brings it back).
+                Hidden.Value = Hidden.Value.Trim().Length == 0 ? Id + ":" + p.Name : Hidden.Value + ";" + Id + ":" + p.Name;
+                Plugin.RequestSave();
+                Plugin.ShowMessage($"{Title} preset deleted: {p.Name}");
+                Reload();
+                nextMatch = 0f;
                 return;
             }
             try

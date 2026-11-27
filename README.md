@@ -33,7 +33,8 @@ you play:
 
 **Presets** on the Fog, Distance, Sky, Life & Lights, Memory & Loading tabs and for the image (post-processing): a
 drop-down with built-in presets and your own, saved as shareable text files in
-`BepInEx\config\pathologic2-world-tuner-<tab>-presets\`.
+`BepInEx\config\pathologic2-world-tuner-<tab>-presets\`. Any preset except *Game* can be deleted (built-in ones are
+hidden and come back with *Restore built-in*).
 
 Everything is changed in memory at runtime. The mod does not modify game files, and saves stay clean.
 
