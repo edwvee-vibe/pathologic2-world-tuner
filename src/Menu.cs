@@ -535,16 +535,16 @@ namespace Pathologic2WorldTuner
             float level = PlagueTweaks.Level;
             GUILayout.Label(level < 0f ? "Infection here: not known (main menu or loading)."
                 : $"Infection here: {level * 100f:0}%" + (PlagueTweaks.GameFogInInfected.Value || PlagueTweaks.GroundFogInInfected.Value
-                    ? $" (the fog options follow it smoothly: now {PlagueTweaks.Weight * 100f:0}%)" : ""), valueStyle);
+                    ? $" (fog options: {PlagueTweaks.Weight * 100f:0}% on)" : ""), valueStyle);
             GUILayout.BeginHorizontal();
             PlainToggle(PlagueTweaks.GameFogInInfected, " Game fog in infected districts");
             PlainToggle(PlagueTweaks.GroundFogInInfected, " Ground fog in infected districts");
             GUILayout.EndHorizontal();
-            FloatRow("Plague particles", PlagueTweaks.ParticlesScale, 0f, 5f, 0.05f, Mode.Scale, 1f, v => $"x{v:0.00}", null, true);
-            FloatRow("Plague veil", PlagueTweaks.VeilScale, 0f, 3f, 0.05f, Mode.Scale, 1f, v => v <= 0f ? "hidden" : $"x{v:0.00}", null, true);
+            FloatRow("Plague particles", PlagueTweaks.ParticlesScale, 0f, 10f, 0.05f, Mode.Scale, 1f, v => $"x{v:0.00}", null, true);
+            FloatRow("Plague veil", PlagueTweaks.VeilScale, 0f, 10f, 0.05f, Mode.Scale, 1f, v => v <= 0f ? "hidden" : $"x{v:0.00}", null, true);
             GUILayout.Label("The game has no fog of its own for infected districts; these are ways to bring the mood back with a lighter " +
-                            "fog. Game fog: your fog profile goes back to the game's there, by the infection level, over ~2.5 s. Ground " +
-                            "fog: the camera's height fog gets up to 4 times denser there. Particles: the falling plague flakes. Veil: " +
+                            "fog. Game fog: inside an infected district your fog profile goes back to the game's (fading over ~2.5 s). " +
+                            "Ground fog: the camera's height fog gets 4 times denser there. Particles: the falling plague flakes. Veil: " +
                             "the thin shafts of haze the game draws over infected ground (0 hides them, to see what they add). " +
                             "Sliders apply when released.", hintStyle);
         }

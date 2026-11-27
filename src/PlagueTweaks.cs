@@ -12,8 +12,8 @@ namespace Pathologic2WorldTuner
     /// shown with the material property _Level and switched off at level 0, and PlagueZoneParticles, whose emission is
     /// maxRate x the infection level at their spot. PlagueZone.GetLevel(x, z) gives the infection level at a point (one ray
     /// down through all colliders); the mod asks it twice a second at the camera while an option below needs it.
-    /// - Game fog in infected districts: the fog profile is blended back to the game's by the (smoothed) level.
-    /// - Ground fog in infected districts: the camera's height fog density is raised by up to x4 with the level.
+    /// - Game fog in infected districts: inside one (any level above 0) the fog profile fades back to the game's.
+    /// - Ground fog in infected districts: inside one the camera's height fog density fades up to x4.
     /// - Plague particles: maxRate of every particle source scaled (new ones in an Awake postfix while not x1).
     /// - Plague veil: the _Level given to the veil's material scaled (postfix of PlagueZone.ApplyLevel while not x1); 0 hides it.
     /// </summary>
@@ -40,14 +40,14 @@ namespace Pathologic2WorldTuner
         internal static void BindConfig(ConfigFile cfg)
         {
             GameFogInInfected = cfg.Bind("Plague", "GameFogInInfected", false,
-                "Experiment. In infected districts the fog goes back to the game's, by the infection level (smoothly).");
+                "Experiment. In infected districts the fog goes back to the game's (fades in and out over ~2.5 s).");
             GroundFogInInfected = cfg.Bind("Plague", "GroundFogInInfected", false,
-                "Experiment. In infected districts the height (ground) fog of the camera gets up to 4 times denser, by the infection level.");
+                "Experiment. In infected districts the height (ground) fog of the camera gets 4 times denser (fades in and out over ~2.5 s).");
             ParticlesScale = cfg.Bind("Plague", "ParticlesScale", 1f, new ConfigDescription(
-                "Experiment. Multiplier of the falling plague particles in infected districts. 1 = as in the game.", new AcceptableValueRange<float>(0f, 5f)));
+                "Experiment. Multiplier of the falling plague particles in infected districts. 1 = as in the game.", new AcceptableValueRange<float>(0f, 10f)));
             VeilScale = cfg.Bind("Plague", "VeilScale", 1f, new ConfigDescription(
                 "Experiment. Multiplier of the plague veil (the shafts of haze over infected districts). 1 = as in the game, 0 = hidden.",
-                new AcceptableValueRange<float>(0f, 3f)));
+                new AcceptableValueRange<float>(0f, 10f)));
             GameFogInInfected.SettingChanged += (s, e) =>
             {
                 Measure(true);
@@ -104,12 +104,19 @@ namespace Pathologic2WorldTuner
         }
 
         /// <summary>Every frame while the smoothed level moves towards the measured one (the fog fades in over ~2.5 s).</summary>
-        internal static bool NeedsFrame => Tracking && Level >= 0f && Math.Abs(Weight - Level) > 0.0001f;
+        /// <summary>
+        /// Any infection counts as a full zone: the level is the same 50% all over an infected district (it may matter for the
+        /// game, not for the look), so the fog options are fully on inside and off outside, with a smooth ~2.5 s fade.
+        /// </summary>
+        internal static float Target => Level > 0.01f ? 1f : 0f;
+
+        internal static bool NeedsFrame => Tracking && Level >= 0f && Math.Abs(Weight - Target) > 0.0001f;
 
         internal static void FrameTick()
         {
-            Weight = Mathf.MoveTowards(Weight, Level, Time.unscaledDeltaTime / 2.5f);
-            if (GameFogInInfected.Value && (Math.Abs(Weight - appliedFogWeight) >= 0.02f || Weight == Level))
+            float target = Target;
+            Weight = Mathf.MoveTowards(Weight, target, Time.unscaledDeltaTime / 2.5f);
+            if (GameFogInInfected.Value && (Math.Abs(Weight - appliedFogWeight) >= 0.02f || Weight == target))
             {
                 SetFogWeight(Weight);
             }
